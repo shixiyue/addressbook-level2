@@ -9,6 +9,7 @@ import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
 import java.io.*;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
@@ -16,6 +17,8 @@ import java.nio.file.Paths;
  * Represents the file used to store address book data.
  */
 public class StorageFile {
+	
+	public static boolean isFileCreated = false;
 
     /** Default file path used if the user doesn't provide the file name. */
     public static final String DEFAULT_STORAGE_FILEPATH = "addressbook.txt";
@@ -39,6 +42,15 @@ public class StorageFile {
      */
     public static class StorageOperationException extends Exception {
         public StorageOperationException(String message) {
+            super(message);
+        }
+    }
+    
+    /**
+     * Signals that the storage file is deleted while the AddressBook program is running
+     */
+    public static class StorageFileDeletedException extends Exception {
+        public StorageFileDeletedException(String message) {
             super(message);
         }
     }
@@ -83,7 +95,10 @@ public class StorageFile {
      *
      * @throws StorageOperationException if there were errors converting and/or storing data to file.
      */
-    public void save(AddressBook addressBook) throws StorageOperationException {
+    public void save(AddressBook addressBook) throws StorageFileDeletedException, StorageOperationException {
+    	if (isFileCreated && !Files.exists(path)) {
+    		throw new StorageFileDeletedException("The storage file is deleted while the AddressBook program is running");
+    	}
 
         /* Note: Note the 'try with resource' statement below.
          * More info: https://docs.oracle.com/javase/tutorial/essential/exceptions/tryResourceClose.html
@@ -118,6 +133,7 @@ public class StorageFile {
             if (loaded.isAnyRequiredFieldMissing()) {
                 throw new StorageOperationException("File data missing some elements");
             }
+            isFileCreated = true;
             return loaded.toModelType();
 
         /* Note: Here, we are using an exception to create the file if it is missing. However, we should minimize
@@ -128,7 +144,15 @@ public class StorageFile {
         // create empty file if not found
         } catch (FileNotFoundException fnfe) {
             final AddressBook empty = new AddressBook();
-            save(empty);
+            isFileCreated = false;
+            try {
+				save(empty);
+			} catch (StorageFileDeletedException e) {
+				// TODO Auto-generated catch block
+				// As isFileCreated = false, the exception will never occur 
+				e.printStackTrace();
+			}
+            isFileCreated = true;
             return empty;
 
         // other errors
