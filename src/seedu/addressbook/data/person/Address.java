@@ -11,7 +11,7 @@ public class Address implements Printable{
     public static final String EXAMPLE = "123, some street";
     public static final String MESSAGE_ADDRESS_CONSTRAINTS = "Person addresses can be in any format";
     public static final String ADDRESS_VALIDATION_REGEX = ".+";
-    private static final String TYPE = "Address: ";
+    private static final String TYPE = " Address: ";
 
     public final String value;
     private boolean isPrivate;
@@ -59,6 +59,13 @@ public class Address implements Printable{
 
 	@Override
 	public String getPrintableString() {
-		return TYPE + value;
+		final StringBuilder builder = new StringBuilder();
+        final String detailIsPrivate = "(private) ";
+        builder.append(TYPE);
+        if (isPrivate) {
+        	builder.append(detailIsPrivate);
+        }
+        builder.append(value);
+		return builder.toString();
 	}
 }
