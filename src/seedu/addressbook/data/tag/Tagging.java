@@ -1,6 +1,6 @@
 package seedu.addressbook.data.tag;
 
-import seedu.addressbook.data.person.ReadOnlyPerson;
+import seedu.addressbook.data.person.Person;
 
 /**
  * An association class that stores information of a tag-update operation
@@ -10,11 +10,11 @@ public class Tagging {
 	private final String ADD_PREFIX = "+ ";
 	private final String DELETE_PREFIX = "- "; 
 	
-	private ReadOnlyPerson person;
+	private Person person;
 	private Tag tag;
 	private boolean isAdd;
 	
-	public Tagging(ReadOnlyPerson person, Tag tag, boolean isAdd) {
+	public Tagging(Person person, Tag tag, boolean isAdd) {
 		this.person = person;
 		this.tag = tag;
 		this.isAdd = isAdd;
